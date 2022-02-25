@@ -1,4 +1,4 @@
-package blankendline
+package blahbrah
 
 import (
 	"go/ast"

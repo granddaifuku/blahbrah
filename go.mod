@@ -1,4 +1,4 @@
-module github.com/granddaifuku/blankendline
+module github.com/granddaifuku/blahbrah
 
 go 1.17
 

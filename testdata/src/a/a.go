@@ -1,10 +1,5 @@
 package a
 
-type student struct {
-	math    int
-	english int
-}
-
 func add(a, b int) int {
 	// want "ineffectual blank line after the left brace"
 	return a + b

@@ -6,6 +6,7 @@ type cat struct {
 }
 
 func foo() {
+	// This is a successful commment
 	_ = cat{
 		// want "ineffectual blank line after the left brace"
 		name: "Haru",

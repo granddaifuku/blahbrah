@@ -5,7 +5,7 @@ type cat struct {
 	age  int
 }
 
-func foo() {
+func baz() {
 	// This is a successful commment
 	_ = cat{
 		// want "ineffectual blank line after the left brace"

@@ -6,7 +6,7 @@ import (
 	"golang.org/x/tools/go/analysis"
 )
 
-const doc = "blahbrah finds the blank lines at the end of the code block"
+const doc = "blahbrah finds ineffectual blank lines after the left brace and before the right brace"
 
 // Analyzer finds ineffectual blank lines after the left brace and before the right brace.
 var Analyzer = &analysis.Analyzer{

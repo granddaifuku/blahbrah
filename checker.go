@@ -19,19 +19,18 @@ type report struct {
 
 type checker struct {
 	fset     *token.FileSet
-	decls    []ast.Decl
+	file     *ast.File
 	comments map[int]struct{}
 }
 
 func newChecker(
 	fset *token.FileSet,
-	decls []ast.Decl,
-	cg []*ast.CommentGroup,
+	file *ast.File,
 ) *checker {
 	// create a map whose key is the line number of comments
 	comments := make(map[int]struct{})
 
-	for _, c := range cg {
+	for _, c := range file.Comments {
 		if c.Text() == testAfterLbrace || c.Text() == testBeforeRbrace {
 			continue
 		}
@@ -44,7 +43,7 @@ func newChecker(
 
 	return &checker{
 		fset:     fset,
-		decls:    decls,
+		file:     file,
 		comments: comments,
 	}
 }
@@ -66,7 +65,7 @@ func (c *checker) isComment(l int) bool {
 func (c *checker) inspect() []report {
 	reports := make([]report, 0)
 
-	for _, d := range c.decls {
+	for _, d := range c.file.Decls {
 		switch d := d.(type) {
 		case *ast.FuncDecl:
 			b := d.Body
@@ -102,7 +101,7 @@ func (c *checker) blockStmt(
 		if rbraceLine-lbraceLine > 1 && !c.isComment(lbraceLine+1) {
 			return []report{
 				{
-					pos: int(block.Rbrace) - 1,
+					pos: int(block.Rbrace) - c.col(block.Rbrace),
 					msg: beforeRbrace,
 				},
 			}
@@ -117,17 +116,16 @@ func (c *checker) blockStmt(
 	firstCol := c.col(block.List[0].Pos())
 	if firstLine-lbraceLine > 1 && !c.isComment(lbraceLine+1) {
 		r := report{
-			pos: int(block.Lbrace) + firstCol,
+			pos: int(block.List[0].Pos()) - firstCol,
 			msg: afterLbrace,
 		}
 		reports = append(reports, r)
 	}
 
 	endLine := c.line(block.List[len(block.List)-1].End())
-	endCol := c.col(block.List[len(block.List)-1].End())
 	if rbraceLine-endLine > 1 && !c.isComment(rbraceLine-1) {
 		r := report{
-			pos: int(block.Rbrace) - endCol,
+			pos: int(block.Rbrace) - c.col(block.Rbrace),
 			msg: beforeRbrace,
 		}
 		reports = append(reports, r)
@@ -146,7 +144,7 @@ func (c *checker) compositeLit(
 		if rbraceLine-lbraceLine > 1 && !c.isComment(lbraceLine+1) {
 			return []report{
 				{
-					pos: int(lit.Rbrace) - 1,
+					pos: int(lit.Rbrace) - c.col(lit.Rbrace),
 					msg: beforeRbrace,
 				},
 			}
@@ -161,17 +159,16 @@ func (c *checker) compositeLit(
 	firstCol := c.col(lit.Elts[0].Pos())
 	if firstLine-lbraceLine > 1 && !c.isComment(lbraceLine+1) {
 		r := report{
-			pos: int(lit.Lbrace) + firstCol,
+			pos: int(lit.Elts[0].Pos()) - firstCol,
 			msg: afterLbrace,
 		}
 		reports = append(reports, r)
 	}
 
 	endLine := c.line(lit.Elts[len(lit.Elts)-1].End())
-	//	endCol := c.col(lit.Elts[len(lit.Elts)-1].End())
 	if rbraceLine-endLine > 1 && !c.isComment(rbraceLine-1) {
 		r := report{
-			pos: int(lit.Rbrace) - 1,
+			pos: int(lit.Rbrace) - c.col(lit.Rbrace),
 			msg: beforeRbrace,
 		}
 		reports = append(reports, r)

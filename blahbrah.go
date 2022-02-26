@@ -17,7 +17,7 @@ var Analyzer = &analysis.Analyzer{
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, f := range pass.Files {
-		c := newChecker(pass.Fset, f.Decls, f.Comments)
+		c := newChecker(pass.Fset, f)
 		reports := c.inspect()
 		for _, r := range reports {
 			pass.Reportf(token.Pos(r.pos), r.msg)

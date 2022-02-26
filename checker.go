@@ -168,10 +168,10 @@ func (c *checker) compositeLit(
 	}
 
 	endLine := c.line(lit.Elts[len(lit.Elts)-1].End())
-	endCol := c.col(lit.Elts[len(lit.Elts)-1].End())
+	//	endCol := c.col(lit.Elts[len(lit.Elts)-1].End())
 	if rbraceLine-endLine > 1 && !c.isComment(rbraceLine-1) {
 		r := report{
-			pos: int(lit.Rbrace) - endCol,
+			pos: int(lit.Rbrace) - 1,
 			msg: beforeRbrace,
 		}
 		reports = append(reports, r)

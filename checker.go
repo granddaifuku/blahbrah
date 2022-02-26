@@ -19,18 +19,19 @@ type report struct {
 
 type checker struct {
 	fset     *token.FileSet
-	file     *ast.File
+	decls    []ast.Decl
 	comments map[int]struct{}
 }
 
 func newChecker(
 	fset *token.FileSet,
-	file *ast.File,
+	decls []ast.Decl,
+	cg []*ast.CommentGroup,
 ) *checker {
 	// create a map whose key is the line number of comments
 	comments := make(map[int]struct{})
 
-	for _, c := range file.Comments {
+	for _, c := range cg {
 		if c.Text() == testAfterLbrace || c.Text() == testBeforeRbrace {
 			continue
 		}
@@ -43,7 +44,7 @@ func newChecker(
 
 	return &checker{
 		fset:     fset,
-		file:     file,
+		decls:    decls,
 		comments: comments,
 	}
 }
@@ -65,7 +66,7 @@ func (c *checker) isComment(l int) bool {
 func (c *checker) inspect() []report {
 	reports := make([]report, 0)
 
-	for _, d := range c.file.Decls {
+	for _, d := range c.decls {
 		switch d := d.(type) {
 		case *ast.FuncDecl:
 			b := d.Body
